@@ -3,6 +3,12 @@ import sqlite3
 from sqlite3 import Error
 from streamlit_option_menu import option_menu
 
+
+st.set_page_config(
+    page_icon="🌳",
+    page_title="Fintree Suggestion Box"
+)
+
 # Database connection
 def create_connection():
     conn = None
@@ -193,6 +199,7 @@ def main():
                     delete_button = st.form_submit_button(label='Delete 🗑️')
                     if delete_button:
                         delete_suggestion(conn, suggestion[0])  # suggestion[0] is the suggestion ID
+                        st.session_state["delete_flag"] = True
                         st.experimental_rerun()
         
         elif selected == "User Control":
@@ -210,6 +217,7 @@ def main():
                             update_button = st.form_submit_button(label='Update Access')
                             if update_button:
                                 update_suggestion_access(conn, user[1], access)
+                                st.session_state["update_flag"] = True
                                 st.experimental_rerun()
 
             with user_control_tab[1]:
@@ -223,6 +231,7 @@ def main():
                             delete_button = st.form_submit_button(label='Delete User 🗑️')
                             if delete_button:
                                 delete_user(conn, user[0])  # user[0] is the user ID
+                                st.session_state["delete_user_flag"] = True
                                 st.experimental_rerun()
         
         if st.button("Logout", key="admin_logout_button"):
