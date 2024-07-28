@@ -193,11 +193,7 @@ def main():
                     delete_button = st.form_submit_button(label='Delete 🗑️')
                     if delete_button:
                         delete_suggestion(conn, suggestion[0])  # suggestion[0] is the suggestion ID
-                        st.session_state["delete_flag"] = True
-                        break  # Break to refresh the page with the updated state
-            if st.session_state.get("delete_flag", False):
-                st.session_state["delete_flag"] = False
-                st.experimental_rerun()
+                        st.experimental_rerun()
         
         elif selected == "User Control":
             st.subheader("User Control")
@@ -214,11 +210,7 @@ def main():
                             update_button = st.form_submit_button(label='Update Access')
                             if update_button:
                                 update_suggestion_access(conn, user[1], access)
-                                st.session_state["update_flag"] = True
-                                break  # Break to refresh the page with the updated state
-            if st.session_state.get("update_flag", False):
-                st.session_state["update_flag"] = False
-                st.experimental_rerun()
+                                st.experimental_rerun()
 
             with user_control_tab[1]:
                 st.subheader("Total User")
@@ -231,11 +223,7 @@ def main():
                             delete_button = st.form_submit_button(label='Delete User 🗑️')
                             if delete_button:
                                 delete_user(conn, user[0])  # user[0] is the user ID
-                                st.session_state["delete_user_flag"] = True
-                                break  # Break to refresh the page with the updated state
-            if st.session_state.get("delete_user_flag", False):
-                st.session_state["delete_user_flag"] = False
-                st.experimental_rerun()
+                                st.experimental_rerun()
         
         if st.button("Logout", key="admin_logout_button"):
             st.session_state.logged_in = False
