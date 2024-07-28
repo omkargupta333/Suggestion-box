@@ -3,12 +3,6 @@ import sqlite3
 from sqlite3 import Error
 from streamlit_option_menu import option_menu
 
-
-st.set_page_config(
-    page_icon="🌳",
-    page_title="Fintree Suggestion Box"
-)
-
 # Database connection
 def create_connection():
     conn = None
@@ -143,6 +137,7 @@ def main():
     def user_login(username):
         st.session_state.logged_in = True
         st.session_state.username = username
+        st.experimental_set_query_params(logged_in=True)
 
     # Normal user panel
     if st.session_state.logged_in and st.session_state.username != "omadmin":
@@ -169,7 +164,8 @@ def main():
         if st.button("Logout", key="logout_button"):
             st.session_state.logged_in = False
             st.session_state.username = ""
-            st.experimental_rerun()
+            st.experimental_set_query_params(logged_in=False)
+
     elif st.session_state.logged_in and st.session_state.username == "omadmin":
         # Admin panel with option menu
         with st.sidebar:
@@ -199,8 +195,7 @@ def main():
                     delete_button = st.form_submit_button(label='Delete 🗑️')
                     if delete_button:
                         delete_suggestion(conn, suggestion[0])  # suggestion[0] is the suggestion ID
-                        st.session_state["delete_flag"] = True
-                        st.experimental_rerun()
+                        st.experimental_set_query_params(deleted=True)
         
         elif selected == "User Control":
             st.subheader("User Control")
@@ -217,8 +212,7 @@ def main():
                             update_button = st.form_submit_button(label='Update Access')
                             if update_button:
                                 update_suggestion_access(conn, user[1], access)
-                                st.session_state["update_flag"] = True
-                                st.experimental_rerun()
+                                st.experimental_set_query_params(updated=True)
 
             with user_control_tab[1]:
                 st.subheader("Total User")
@@ -228,16 +222,17 @@ def main():
                     if user[1] != "omadmin":  # user[1] is the username
                         with st.form(key=f'user_form_{user[1]}'):
                             st.write(f"Username: {user[1]}")
+
                             delete_button = st.form_submit_button(label='Delete User 🗑️')
                             if delete_button:
                                 delete_user(conn, user[0])  # user[0] is the user ID
-                                st.session_state["delete_user_flag"] = True
-                                st.experimental_rerun()
+                                st.experimental_set_query_params(deleted_user=True)
         
         if st.button("Logout", key="admin_logout_button"):
             st.session_state.logged_in = False
             st.session_state.username = ""
-            st.experimental_rerun()
+            st.experimental_set_query_params(logged_in=False)
+
     else:
         # Create tabs
         tab1, tab2, tab3, tab4 = st.tabs(["Login", "Register", "Forgot Password", "Admin Login"])
@@ -252,7 +247,6 @@ def main():
                 if user and user[2] == password:  # user[2] is the password
                     st.success(f"Welcome {username} 🎉")
                     user_login(username)
-                    st.experimental_rerun()
                 else:
                     st.error("Invalid Username or Password")
 
@@ -271,7 +265,6 @@ def main():
                     add_user(conn, new_username, new_password, contact_number)
                     st.success("You have successfully registered!")
                     user_login(new_username)
-                    st.experimental_rerun()
 
         # Forgot Password Tab
         with tab3:
@@ -308,7 +301,6 @@ def main():
                 if admin_login(admin_username, admin_password):
                     st.success("Welcome Admin 🎉")
                     user_login("omadmin")
-                    st.experimental_rerun()
                 else:
                     st.error("Invalid Admin Username or Password")
 
