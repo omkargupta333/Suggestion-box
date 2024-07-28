@@ -3,11 +3,6 @@ import sqlite3
 from sqlite3 import Error
 from streamlit_option_menu import option_menu
 
-st.set_page_config(
-    page_icon="🌳",
-    page_title="Fintree Suggestion Box"
-)
-
 # Database connection
 def create_connection():
     conn = None
@@ -170,7 +165,6 @@ def main():
             st.session_state.logged_in = False
             st.session_state.username = ""
             st.session_state.suggestion_submitted = False
-            st.experimental_rerun()
 
     elif st.session_state.logged_in and st.session_state.username == "omadmin":
         # Admin panel with option menu
@@ -204,9 +198,6 @@ def main():
                         delete_suggestion(conn, suggestion[0])  # suggestion[0] is the suggestion ID
                         st.session_state.suggestion_deleted = True
                         break  # Break to avoid deleting multiple items in one rerun
-            if st.session_state.get("suggestion_deleted", False):
-                st.session_state.suggestion_deleted = False
-                st.experimental_rerun()
         
         elif selected == "User Control":
             st.subheader("User Control")
@@ -225,9 +216,6 @@ def main():
                                 update_suggestion_access(conn, user[1], access)
                                 st.session_state.access_updated = True
                                 break  # Break to avoid updating multiple items in one rerun
-            if st.session_state.get("access_updated", False):
-                st.session_state.access_updated = False
-                st.experimental_rerun()
 
             with user_control_tab[1]:
                 st.subheader("Total User")
@@ -237,20 +225,15 @@ def main():
                     if user[1] != "omadmin":  # user[1] is the username
                         with st.form(key=f'user_form_{user[1]}'):
                             st.write(f"Username: {user[1]}")
-
                             delete_button = st.form_submit_button(label='Delete User 🗑️')
                             if delete_button:
                                 delete_user(conn, user[0])  # user[0] is the user ID
                                 st.session_state.user_deleted = True
                                 break  # Break to avoid deleting multiple items in one rerun
-            if st.session_state.get("user_deleted", False):
-                st.session_state.user_deleted = False
-                st.experimental_rerun()
         
         if st.button("Logout", key="admin_logout_button"):
             st.session_state.logged_in = False
             st.session_state.username = ""
-            st.experimental_rerun()
 
     else:
         # Create tabs
@@ -266,7 +249,6 @@ def main():
                 if user and user[2] == password:  # user[2] is the password
                     st.success(f"Welcome {username} 🎉")
                     user_login(username)
-                    st.experimental_rerun()
                 else:
                     st.error("Invalid Username or Password")
 
@@ -285,7 +267,6 @@ def main():
                     add_user(conn, new_username, new_password, contact_number)
                     st.success("You have successfully registered!")
                     user_login(new_username)
-                    st.experimental_rerun()
 
         # Forgot Password Tab
         with tab3:
@@ -301,7 +282,6 @@ def main():
                         st.success("Password has been reset")
                         st.session_state.verified = False  # Reset the verification state
                         st.session_state.username = ""
-                        st.experimental_rerun()
             else:
                 username = st.text_input("Username", key="forgot_username")
                 contact_number = st.text_input("Contact Number", key="forgot_contact")
@@ -323,7 +303,6 @@ def main():
                 if admin_login(admin_username, admin_password):
                     st.success("Welcome Admin 🎉")
                     user_login("omadmin")
-                    st.experimental_rerun()
                 else:
                     st.error("Invalid Admin Username or Password")
 
