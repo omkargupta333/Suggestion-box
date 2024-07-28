@@ -3,11 +3,6 @@ import sqlite3
 from sqlite3 import Error
 from streamlit_option_menu import option_menu
 
-
-st.set_page_config(
-    page_icon="🌳",
-    page_title="Fintree Suggestion Box"
-)
 # Database connection
 def create_connection():
     conn = None
@@ -160,6 +155,7 @@ def main():
                     st.success("Thank you for your suggestion! 🎈")
                     st.balloons()
                     add_suggestion(conn, st.session_state.username, suggestion)
+                    st.experimental_rerun()
         
         else:
             st.subheader("Access Denied")
@@ -267,7 +263,6 @@ def main():
                     add_user(conn, new_username, new_password, contact_number)
                     st.success("You have successfully registered!")
                     user_login(new_username)
-                    st.experimental_rerun()
 
         # Forgot Password Tab
         with tab3:
@@ -282,6 +277,7 @@ def main():
                         update_password(conn, st.session_state.username, new_password)
                         st.success("Password has been reset")
                         st.session_state.verified = False  # Reset the verification state
+                        st.session_state.username = ""
             else:
                 username = st.text_input("Username", key="forgot_username")
                 contact_number = st.text_input("Contact Number", key="forgot_contact")
