@@ -158,6 +158,9 @@ def delete_reply(conn, reply_id):
 def admin_login(username, password):
     return username == "omadmin" and password == "ompass"
 
+def rerun():
+    st.experimental_set_query_params(rerun="true")
+
 # Streamlit Application
 def main():
     st.title("📮 Fintree Suggestion Box")
@@ -200,7 +203,7 @@ def main():
                         st.success("Thank you for your suggestion! 🎈")
                         st.balloons()
                         add_suggestion(conn, st.session_state.username, suggestion)
-                        st.session_state.suggestion_submitted = True
+                        rerun()  # Force a rerun to update the suggestion list
 
             with tabs[1]:
                 st.subheader("Suggestion List 📋")
@@ -213,14 +216,14 @@ def main():
                         delete_button = st.form_submit_button(label='Delete 🗑️')
                         if delete_button:
                             delete_suggestion(conn, suggestion[0])
-                            st.experimental_rerun()  # Rerun the app to update the suggestion list
+                            rerun()  # Force a rerun to update the suggestion list
 
                     replies = get_replies(conn, suggestion[0])
                     for reply in replies:
                         st.write(f"Reply from {reply[2]}: {reply[3]}")
                         if st.button('Delete Reply 🗑️', key=f'delete_reply_button_{reply[0]}'):
                             delete_reply(conn, reply[0])
-                            st.experimental_rerun()  # Rerun the app to update the replies list
+                            rerun()  # Force a rerun to update the replies list
 
         else:
             st.subheader("Access Denied")
@@ -230,6 +233,7 @@ def main():
             st.session_state.logged_in = False
             st.session_state.username = ""
             st.session_state.suggestion_submitted = False
+            rerun()  # Force a rerun to update the state
 
     elif st.session_state.logged_in and st.session_state.username == "omadmin":
         # Admin panel with option menu
@@ -251,7 +255,7 @@ def main():
                     st.success("Suggestion submitted successfully!")
                     st.balloons()
                     add_suggestion(conn, "omadmin", admin_suggestion)
-                    st.session_state.admin_suggestion_submitted = True
+                    rerun()  # Force a rerun to update the suggestion list
         
         elif selected == "Suggestion List":
             st.subheader("Suggestion List 📋")
@@ -268,17 +272,17 @@ def main():
                     reply_button = st.form_submit_button(label='Reply 💬')
                     if delete_button:
                         delete_suggestion(conn, suggestion[0])
-                        st.experimental_rerun()  # Rerun the app to update the suggestion list
+                        rerun()  # Force a rerun to update the suggestion list
                     if reply_button:
                         st.session_state.reply_to = suggestion[0]
-                        st.experimental_rerun()
+                        rerun()  # Force a rerun to update the state
 
                 replies = get_replies(conn, suggestion[0])
                 for reply in replies:
                     st.write(f"Reply from {reply[2]}: {reply[3]}")
                     if st.button('Delete Reply 🗑️', key=f'delete_reply_button_{reply[0]}'):
                         delete_reply(conn, reply[0])
-                        st.experimental_rerun()  # Rerun the app to update the replies list
+                        rerun()  # Force a rerun to update the replies list
 
                 if 'reply_to' in st.session_state and st.session_state.reply_to == suggestion[0]:
                     with st.form(key=f'reply_form_{suggestion[0]}'):
@@ -290,7 +294,7 @@ def main():
                             else:
                                 add_reply(conn, suggestion[0], st.session_state.username, reply_text)
                                 del st.session_state.reply_to
-                                st.experimental_rerun()  # Rerun the app to update the suggestion list
+                                rerun()  # Force a rerun to update the suggestion list
 
         elif selected == "User Control":
             st.subheader("User Control")
@@ -321,11 +325,12 @@ def main():
                         st.write(f"Username: {user[1]}")
                         if st.button('Delete User 🗑️', key=f'delete_user_{user[0]}'):
                             delete_user(conn, user[1])  # delete user by username
-                            st.experimental_rerun()  # Rerun the app to update the user list
+                            rerun()  # Force a rerun to update the user list
         
         if st.button("Logout", key="admin_logout_button"):
             st.session_state.logged_in = False
             st.session_state.username = ""
+            rerun()  # Force a rerun to update the state
 
     else:
         # Create tabs
@@ -341,6 +346,7 @@ def main():
                 if user and user[2] == password:  # user[2] is the password
                     st.success(f"Welcome {username} 🎉")
                     user_login(username)
+                    rerun()  # Force a rerun to update the state
                 else:
                     st.error("Invalid Username or Password")
 
@@ -363,6 +369,7 @@ def main():
                         add_user(conn, new_username, new_password, contact_number)
                         st.success("You have successfully registered!")
                         user_login(new_username)
+                        rerun()  # Force a rerun to update the state
 
         # Forgot Password Tab
         with tab3:
@@ -378,6 +385,7 @@ def main():
                         st.success("Password has been reset")
                         st.session_state.verified = False  # Reset the verification state
                         st.session_state.username = ""
+                        rerun()  # Force a rerun to update the state
             else:
                 username = st.text_input("Username", key="forgot_username")
                 contact_number = st.text_input("Contact Number", key="forgot_contact")
@@ -387,6 +395,7 @@ def main():
                         st.success("Verification successful. Please enter your new password.")
                         st.session_state.verified = True
                         st.session_state.username = username
+                        rerun()  # Force a rerun to update the state
                     else:
                         st.error("Invalid Username or Contact Number")
 
@@ -399,6 +408,7 @@ def main():
                 if admin_login(admin_username, admin_password):
                     st.success("Welcome Admin 🎉")
                     user_login("omadmin")
+                    rerun()  # Force a rerun to update the state
                 else:
                     st.error("Invalid Admin Username or Password")
 
