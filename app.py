@@ -97,10 +97,10 @@ def update_suggestion_access(conn, username, access):
         st.error(e)
         return False
 
-def delete_user(conn, user_id):
+def delete_user(conn, username):
     try:
         c = conn.cursor()
-        c.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        c.execute('DELETE FROM users WHERE username = ?', (username,))
         conn.commit()
     except Error as e:
         st.error(e)
@@ -320,7 +320,7 @@ def main():
                     if user[1] != "omadmin":  # user[1] is the username
                         st.write(f"Username: {user[1]}")
                         if st.button('Delete User 🗑️', key=f'delete_user_{user[0]}'):
-                            delete_user(conn, user[0])  # user[0] is the user ID
+                            delete_user(conn, user[1])  # delete user by username
                             st.experimental_rerun()  # Rerun the app to update the user list
         
         if st.button("Logout", key="admin_logout_button"):
@@ -356,9 +356,13 @@ def main():
                 elif len(contact_number) != 10:
                     st.error("Contact Number must be 10 digits")
                 else:
-                    add_user(conn, new_username, new_password, contact_number)
-                    st.success("You have successfully registered!")
-                    user_login(new_username)
+                    existing_user = get_user(conn, new_username)
+                    if existing_user:
+                        st.error("Username already exists. Please choose a different username.")
+                    else:
+                        add_user(conn, new_username, new_password, contact_number)
+                        st.success("You have successfully registered!")
+                        user_login(new_username)
 
         # Forgot Password Tab
         with tab3:
